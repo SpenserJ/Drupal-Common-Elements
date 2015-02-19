@@ -1,0 +1,6 @@
+name = Common Elements
+description = "Provide templates for Common Elements that are used on every website"
+package = Simple Simple
+core = 7.x
+
+dependencies[] = block
