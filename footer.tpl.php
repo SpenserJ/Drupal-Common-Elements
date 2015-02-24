@@ -1,1 +1,2 @@
-<h1>Random footer?</h1>
+<footer id="footer">
+</footer>
