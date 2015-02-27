@@ -26,7 +26,7 @@ function common_elements_element_info() {
   );
 }
 
-function common_elements_page_build(&$page) {
+function common_elements_page_alter(&$page) {
   $page['header'] = element_info('header');
   if (empty($page['region_header']) === FALSE) {
     $page['header']['#region'] = $page['region_header'];
