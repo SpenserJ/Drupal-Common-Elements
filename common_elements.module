@@ -3,12 +3,12 @@
 function common_elements_theme() {
   return array(
     'header' => array(
-      'variables' => array('region' => array()),
+      'variables' => array('page' => array()),
       'template' => 'header',
       'preprocess functions' => array('common_elements_page_variables'),
     ),
     'footer' => array(
-      'variables' => array('region' => array()),
+      'variables' => array('page' => array()),
       'template' => 'footer',
       'preprocess functions' => array('common_elements_page_variables'),
     ),
@@ -26,29 +26,33 @@ function common_elements_element_info() {
   );
 }
 
-function common_elements_page_alter(&$page) {
+function common_elements_page_build(&$page) {
   $page['header'] = element_info('header');
-  if (empty($page['region_header']) === FALSE) {
-    $page['header']['#region'] = $page['region_header'];
-  }
   $page['footer'] = element_info('footer');
-  if (empty($page['region_footer']) === FALSE) {
-    $page['footer']['#region'] = $page['region_footer'];
-  }
+}
+
+function common_elements_page_alter(&$page) {
+  // Pull out the default page variables.
+  $filtered_page = array_diff_key($page, array('header' => '', 'footer' => ''));
+  // Ensure regions receive the correct theme_wrappers.
+  system_page_alter($filtered_page);
+
+  // Set up the page variables for header and footer.
+  $page['header']['#page'] = $filtered_page;
+  $page['footer']['#page'] = $filtered_page;
 }
 
 function common_elements_page_variables(&$variables) {
   // Store the theme_hook_suggestions, as we'll revert to them later.
   $suggestions = $variables['theme_hook_suggestions'];
 
-  // Stub in some page data, so that our variables are set properly.
-  $variables['page'] = array();
-  $variables['page']['#show_messages'] = FALSE;
-
   // Loop through the preprocess_page hooks, and apply them.
   $hooks = theme_get_registry();
   foreach ($hooks['page']['preprocess functions'] as $preprocess) {
     if (function_exists($preprocess)) { $preprocess($variables, 'preprocess_page'); }
+  }
+  foreach ($hooks['page']['process functions'] as $process) {
+    if (function_exists($process)) { $process($variables, 'process_page'); }
   }
 
   // Revert back to the original theme_hook_suggestions.
